@@ -3,7 +3,9 @@
 
 # 使用方法：
 ## 第一步
-首先运行 go build 命令进行编译得到可执行文件，或者从release中直接下载相应版本的可执行文件
+首先运行 go build 命令进行编译得到可执行文件
+
+或者从release（发行版）中直接下载相应版本的可执行文件，注意操作系统的区别：macos请选择darwin版本，linux请选择linux版本，windows请选择windows版本
 ## 第二步
 将conf文件和可执行文件放在同一目录中
 ## 第三步（Windows系统可略过）
