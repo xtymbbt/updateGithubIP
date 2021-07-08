@@ -1,0 +1,2 @@
+# updateGithubIP
+因Github被墙，总是登不上，Git用不了。总是自己去查找Github可用IP挺麻烦的，所以写了个这样的程序自动更新Github服务器地址到hosts文件的配置中。系统默认为windows系统的hosts文件路径，如果为其它系统，可在conf文件中对hosts文件路径进行修改。
