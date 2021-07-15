@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
-	"time"
 )
 
 func main() {
@@ -19,6 +19,9 @@ func main() {
 		for i := 0; i < s.Len(); i++ {
 			githubIP := s.Index(i).Interface().(string)
 			githubIP = strings.Split(githubIP, "/")[0]
+			if x := strings.Split(githubIP, ".")[3]; x == "0" {
+				continue
+			}
 			fmt.Println("Testing github ip: ", githubIP)
 			test := pingTest(githubIP)
 			if test {
@@ -27,8 +30,9 @@ func main() {
 					fmt.Printf("Error occured: %#v\n", err)
 					return
 				} else {
-					fmt.Printf("Write into hosts succeeded.\nWaiting Program to exit...\n")
-					time.Sleep(3 * time.Second)
+					fmt.Printf("Write into hosts succeeded.\nPress any key to exit...\n")
+					b := make([]byte, 1)
+					os.Stdin.Read(b)
 					return
 				}
 			} else {
