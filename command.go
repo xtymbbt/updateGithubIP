@@ -6,10 +6,16 @@ import (
 )
 
 func pingTest(githubIP string) bool {
-	results := []bool{false, false}
-	results[0] = test(githubIP, "443")
-	results[1] = test(githubIP, "80")
-	return results[0] && results[1]
+	// 测试三次
+	for i := 0; i < 3; i++ {
+		if !test(githubIP, "443") {
+			return false
+		}
+		if !test(githubIP, "80") {
+			return false
+		}
+	}
+	return true
 }
 func test(IP string, port string) bool {
 	address := net.JoinHostPort(IP, port)

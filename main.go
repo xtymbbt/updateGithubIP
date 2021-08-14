@@ -20,51 +20,71 @@ func main() {
 			bannedIPMap[bannedIPs[i]] = true
 		}
 	}
-	git := list["git"]
-	switch reflect.TypeOf(git).Kind() {
-	case reflect.Slice, reflect.Array:
-		s := reflect.ValueOf(git)
-		for i := 0; i < s.Len(); i++ {
-			githubIP := s.Index(i).Interface().(string)
-			githubIP = strings.Split(githubIP, "/")[0]
-			if x := strings.Split(githubIP, ".")[3]; x == "0" {
-				continue
-			}
-			if _, ok := bannedIPMap[githubIP]; ok {
-				continue
-			}
-			fmt.Println("Testing github ip: ", githubIP)
-			test := pingTest(githubIP)
-			if test {
-				err := writeHosts(githubIP)
-				if err != nil {
-					fmt.Printf("Error occured: %#v\n", err)
-					return
-				} else {
-					err = writeBannedIP(githubIP)
-					if err != nil {
-						fmt.Printf("Error occured: %#v\n", err)
-						return
-					} else {
-						fmt.Printf("Write into hosts succeeded.\nPress any key to exit...\n")
-						b := make([]byte, 1)
-						os.Stdin.Read(b)
-						return
+	//kinds := []string{"hooks", "web", "api", "git", "packages", "pages", "importer", "actions", "dependabot"}
+	kinds := []string{"web", "api", "git"}
+	githubIPs := make(map[string]bool, 0)
+	for i := 0; i < len(kinds); i++ {
+		ipKind := list[kinds[i]]
+		switch reflect.TypeOf(ipKind).Kind() {
+		case reflect.Slice, reflect.Array:
+			s := reflect.ValueOf(ipKind)
+			for i := 0; i < s.Len(); i++ {
+				githubIP := s.Index(i).Interface().(string)
+				githubIP = strings.Split(githubIP, "/")[0]
+				if strings.Contains(githubIP, ".") {
+					if x := strings.Split(githubIP, ".")[3]; x == "0" {
+						continue
 					}
 				}
-			} else {
-				err = writeBannedIP(githubIP)
-				if err != nil {
-					fmt.Printf("Error occured: %#v\n", err)
-					return
-				} else {
-					fmt.Println("Test failed.")
-					fmt.Println("Beginning another test:")
+				if _, ok := bannedIPMap[githubIP]; ok {
+					continue
 				}
+				githubIPs[githubIP] = true
+			}
+		default:
+			fmt.Println("Getting " + kinds[i] + " IP list failed.")
+		}
+	}
+	for githubIP := range githubIPs {
+		if Test(githubIP) {
+			return
+		}
+	}
+	fmt.Println("We have tested all IPs.")
+}
+
+func Test(githubIP string) bool {
+	fmt.Println("Testing github ip: ", githubIP)
+	test := pingTest(githubIP)
+	if test {
+		err := writeHosts(githubIP)
+		if err != nil {
+			fmt.Printf("Error occured: %#v\n", err)
+			return false
+		} else {
+			err = writeBannedIP(githubIP)
+			if err != nil {
+				fmt.Printf("Error occured: %#v\n", err)
+				return false
+			} else {
+				fmt.Printf("Write into hosts succeeded.\nPress any key to exit...\n")
+				b := make([]byte, 1)
+				_, err := os.Stdin.Read(b)
+				if err != nil {
+					return true
+				}
+				return true
 			}
 		}
-		fmt.Println("We have tested all IPs.")
-	default:
-		fmt.Println("Getting IP list failed.")
+	} else {
+		err := writeBannedIP(githubIP)
+		if err != nil {
+			fmt.Printf("Error occured: %#v\n", err)
+			return false
+		} else {
+			fmt.Println("Test failed.")
+			fmt.Println("Beginning another test:")
+		}
 	}
+	return false
 }
