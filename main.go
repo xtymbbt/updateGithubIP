@@ -10,7 +10,7 @@ import (
 func main() {
 	list, err := getIPList()
 	if err != nil {
-		fmt.Printf("Error occured: %#v\n", err)
+		fmt.Printf("Error occured in getIPList: %#v\n", err)
 		return
 	}
 	bannedIPs := readBannedIP()
@@ -59,12 +59,12 @@ func Test(githubIP string) bool {
 	if test {
 		err := writeHosts(githubIP)
 		if err != nil {
-			fmt.Printf("Error occured: %#v\n", err)
+			fmt.Printf("Error occured in write Hosts: %#v\n", err)
 			return false
 		} else {
 			err = writeBannedIP(githubIP)
 			if err != nil {
-				fmt.Printf("Error occured: %#v\n", err)
+				fmt.Printf("Error occured in writeBannedIP 1: %#v\n", err)
 				return false
 			} else {
 				fmt.Printf("Write into hosts succeeded.\nPress any key to exit...\n")
@@ -79,7 +79,7 @@ func Test(githubIP string) bool {
 	} else {
 		err := writeBannedIP(githubIP)
 		if err != nil {
-			fmt.Printf("Error occured: %#v\n", err)
+			fmt.Printf("Error occured in writeBannedIP 2: %#v\n", err)
 			return false
 		} else {
 			fmt.Println("Test failed.")
