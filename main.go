@@ -50,7 +50,7 @@ func main() {
 			return
 		}
 	}
-	fmt.Println("We have tested all IPs.")
+	fmt.Println("We have tested all IPs. Clear the bannedIP.txt to restart again.")
 }
 
 func Test(githubIP string) bool {

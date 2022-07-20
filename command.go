@@ -30,12 +30,28 @@ func testHttp(githubIP string) bool {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	resp, err := client.Get("https://" + githubIP + ":443")
-	if err != nil {
-		fmt.Printf("error occured in testing http: %#v\nErr: %#v\n", err, err.Error())
+	ch := make(chan bool, 1)
+	var resp *http.Response
+	var err error
+	go func() {
+		resp, err = client.Get("https://" + githubIP + ":443")
+		ch <- true
+	}()
+	select {
+	case <-ch:
+	case <-time.After(time.Second * 2):
 		return false
 	}
-	defer resp.Body.Close()
+	//defer func(Body io.ReadCloser) {
+	//	err := Body.Close()
+	//	if err != nil {
+	//		fmt.Printf("error occrored in closing resp.body: %#v\n", err.Error())
+	//	}
+	//}(resp.Body)
+	if err != nil {
+		fmt.Printf("error occured in testing http: %#v\n", err.Error())
+		return false
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("error occured in read http result: %#v\n", err)
