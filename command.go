@@ -39,7 +39,7 @@ func testHttp(githubIP string) bool {
 	}()
 	select {
 	case <-ch:
-	case <-time.After(time.Second * 2):
+	case <-time.After(time.Second * time.Duration(TimeoutSeconds)):
 		return false
 	}
 	//defer func(Body io.ReadCloser) {
@@ -76,8 +76,7 @@ func testHttp(githubIP string) bool {
 }
 func test(IP string, port string) bool {
 	address := net.JoinHostPort(IP, port)
-	// 1 秒超时
-	conn, err := net.DialTimeout("tcp", address, time.Second)
+	conn, err := net.DialTimeout("tcp", address, time.Second*time.Duration(TimeoutSeconds))
 	if err != nil {
 		return false
 	} else {

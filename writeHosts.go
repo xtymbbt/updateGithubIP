@@ -9,24 +9,7 @@ import (
 )
 
 func writeHosts(githubIP string) error {
-	filePath := "C:\\Windows\\System32\\drivers\\etc\\hosts"
-	conf, err := os.Open("conf.txt")
-	if err != nil {
-		panic(err)
-	}
-	confBuf := bufio.NewReader(conf)
-	for {
-		a, _, err := confBuf.ReadLine()
-		if err == io.EOF {
-			break
-		}
-		if strings.Contains(string(a), "filePath") {
-			filePath = strings.Replace(string(a), "filePath=", "", -1)
-			filePath = strings.Replace(filePath, "\"", "", -1)
-		}
-	}
-	fmt.Println(filePath)
-	f, err := os.Open(filePath)
+	f, err := os.Open(FilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -59,11 +42,11 @@ func writeHosts(githubIP string) error {
 		panic(err)
 	}
 	fmt.Println(result)
-	err = os.Chmod(filePath, 0666)
+	err = os.Chmod(FilePath, 0666)
 	if err != nil {
 		panic(err)
 	}
-	fw, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666) //os.O_TRUNC清空文件重新写入，否则原文件内容可能残留
+	fw, err := os.OpenFile(FilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666) //os.O_TRUNC清空文件重新写入，否则原文件内容可能残留
 	if err != nil {
 		panic(err)
 	}

@@ -1,13 +1,48 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
+var (
+	FilePath       string
+	TimeoutSeconds int64
+)
+
+func initConfig() {
+	FilePath = "C:\\Windows\\System32\\drivers\\etc\\hosts"
+	conf, err := os.Open("conf.txt")
+	if err != nil {
+		panic(err)
+	}
+	confBuf := bufio.NewReader(conf)
+	for {
+		a, _, err := confBuf.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		if strings.Contains(string(a), "filePath") {
+			FilePath = strings.Replace(string(a), "filePath=", "", -1)
+			FilePath = strings.Replace(FilePath, "\"", "", -1)
+		}
+		if strings.Contains(string(a), "timeoutSeconds") {
+			TimeoutSeconds, err = strconv.ParseInt(strings.Replace(string(a), "timeoutSeconds=", "", -1), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+	fmt.Println(FilePath)
+}
+
 func main() {
+	initConfig()
 	list, err := getIPList()
 	if err != nil {
 		fmt.Printf("Error occured in getIPList: %#v\n", err)

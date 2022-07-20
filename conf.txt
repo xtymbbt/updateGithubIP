@@ -1,1 +1,2 @@
 filePath="/etc/hosts"
+timeoutSeconds=3
