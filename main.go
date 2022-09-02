@@ -8,11 +8,16 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var (
 	FilePath       string
 	TimeoutSeconds int64
+	ipChan         = make(chan *string, 1024)
+	successChan    = make(chan bool, 0)
+	completeChan   = make(chan bool, 0)
+	wg             sync.WaitGroup
 )
 
 func initConfig() {
@@ -48,13 +53,13 @@ func main() {
 		fmt.Printf("Error occured in getIPList: %#v\n", err)
 		return
 	}
-	bannedIPs := readBannedIP()
-	var bannedIPMap = make(map[string]bool, 0)
-	for i := 0; i < len(bannedIPs); i++ {
-		if _, ok := bannedIPMap[bannedIPs[i]]; !ok {
-			bannedIPMap[bannedIPs[i]] = true
-		}
-	}
+	//bannedIPs := readBannedIP()
+	//var bannedIPMap = make(map[string]bool, 0)
+	//for i := 0; i < len(bannedIPs); i++ {
+	//	if _, ok := bannedIPMap[bannedIPs[i]]; !ok {
+	//		bannedIPMap[bannedIPs[i]] = true
+	//	}
+	//}
 	//kinds := []string{"hooks", "web", "api", "git", "packages", "pages", "importer", "actions", "dependabot"}
 	kinds := []string{"web", "api", "git"}
 	githubIPs := make(map[string]bool, 0)
@@ -71,55 +76,57 @@ func main() {
 						continue
 					}
 				}
-				if _, ok := bannedIPMap[githubIP]; ok {
-					continue
-				}
+				//if _, ok := bannedIPMap[githubIP]; ok {
+				//	continue
+				//}
 				githubIPs[githubIP] = true
 			}
 		default:
 			fmt.Println("Getting " + kinds[i] + " IP list failed.")
 		}
 	}
-	for githubIP := range githubIPs {
-		if Test(githubIP) {
-			return
-		}
+	go TestAll(githubIPs)
+	go Write()
+	select {
+	case <-successChan:
+		fmt.Println("Successfully written into hosts, you can now visit github.com, congratulations!")
+	case <-completeChan:
+		fmt.Println("We have tested all IPs, sadly, no ip available.")
 	}
-	fmt.Println("We have tested all IPs. Clear the bannedIP.txt to restart again.")
+	close(successChan)
+	close(completeChan)
 }
 
-func Test(githubIP string) bool {
+func TestAll(githubIPs map[string]bool) {
+	for githubIP := range githubIPs {
+		wg.Add(1)
+		go Test(githubIP)
+	}
+	wg.Wait()
+	completeChan <- true
+	close(ipChan)
+}
+
+func Test(githubIP string) {
 	fmt.Println("Testing github ip: ", githubIP)
-	test := pingTest(githubIP)
-	if test {
+	if pingTest(githubIP) {
+		fmt.Println("githubIP: ", githubIP, " test success.")
+		ipChan <- &githubIP
+	} else {
+		fmt.Println("githubIP: ", githubIP, " test failed.")
+	}
+	wg.Done()
+}
+
+func Write() {
+	for githubIPp := range ipChan {
+		githubIP := *githubIPp
 		err := writeHosts(githubIP)
 		if err != nil {
 			fmt.Printf("Error occured in write Hosts: %#v\n", err)
-			return false
-		} else {
-			err = writeBannedIP(githubIP)
-			if err != nil {
-				fmt.Printf("Error occured in writeBannedIP 1: %#v\n", err)
-				return false
-			} else {
-				fmt.Printf("Write into hosts succeeded.\nPress any key to exit...\n")
-				b := make([]byte, 1)
-				_, err := os.Stdin.Read(b)
-				if err != nil {
-					return true
-				}
-				return true
-			}
+			continue
 		}
-	} else {
-		err := writeBannedIP(githubIP)
-		if err != nil {
-			fmt.Printf("Error occured in writeBannedIP 2: %#v\n", err)
-			return false
-		} else {
-			fmt.Println("Test failed.")
-			fmt.Println("Beginning another test:")
-		}
+		successChan <- true
+		close(ipChan)
 	}
-	return false
 }

@@ -30,18 +30,18 @@ func testHttp(githubIP string) bool {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
-	ch := make(chan bool, 1)
+	//ch := make(chan bool, 1)
 	var resp *http.Response
 	var err error
-	go func() {
-		resp, err = client.Get("https://" + githubIP + ":443")
-		ch <- true
-	}()
-	select {
-	case <-ch:
-	case <-time.After(time.Second * time.Duration(TimeoutSeconds)):
-		return false
-	}
+	//go func() {
+	resp, err = client.Get("https://" + githubIP + ":443")
+	//	ch <- true
+	//}()
+	//select {
+	//case <-ch:
+	//case <-time.After(time.Second * time.Duration(TimeoutSeconds)):
+	//	return false
+	//}
 	//defer func(Body io.ReadCloser) {
 	//	err := Body.Close()
 	//	if err != nil {
