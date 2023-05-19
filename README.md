@@ -7,9 +7,9 @@
 感谢[@521xueweihan](https://github.com/521xueweihan) 在其项目 [521xueweihan/GitHub520](https://github.com/521xueweihan/GitHub520) 中提供的Github可用IP地址，地址为：https://raw.hellogithub.com/hosts.json
 # 使用方法：
 ## 第一步
-首先运行 go build 命令进行编译得到可执行文件
+首先从release（发行版）中直接下载相应版本的可执行文件，注意操作系统的区别：macos请选择darwin版本，linux请选择linux版本，windows请选择windows版本
 
-或者从release（发行版）中直接下载相应版本的可执行文件，注意操作系统的区别：macos请选择darwin版本，linux请选择linux版本，windows请选择windows版本
+或者运行 go build 命令进行编译得到可执行文件（需要安装go语言环境）
 
 在最新的发行版中，相应操作系统应当下载的版本已在其中描述，可直接至发行版中找相应发行版进行下载。
 ## 第二步
