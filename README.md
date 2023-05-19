@@ -1,6 +1,10 @@
 # updateGithubIP
 因Github被墙，总是登不上，Git用不了。总是自己去查找Github可用IP挺麻烦的，所以写了个这样的程序自动更新Github服务器地址到hosts文件的配置中。系统默认为windows系统的hosts文件路径，如果为其它系统，可在conf文件中对hosts文件路径进行修改。
 
+# 2023年05月19日更新：
+采用了521xueweihan提供的Github可用IP地址，地址为：https://raw.hellogithub.com/hosts.json
+
+感谢[@521xueweihan](https://github.com/521xueweihan) 在其项目 [521xueweihan/GitHub520](https://github.com/521xueweihan/GitHub520) 中提供的Github可用IP地址，地址为：https://raw.hellogithub.com/hosts.json
 # 使用方法：
 ## 第一步
 首先运行 go build 命令进行编译得到可执行文件
