@@ -1,2 +1,2 @@
-filePath="/etc/hosts"
+filePath="C:\Windows\System32\drivers\etc\hosts"
 timeoutSeconds=3
